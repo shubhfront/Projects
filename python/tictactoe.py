@@ -1,59 +1,86 @@
-import tkinter 
-from tkinter import Tk
+import tkinter as tk
+from tkinter import messagebox
 
-def form():
-    print("Hello World")
-
-global root
-root = Tk()
-root.title('Tic Tac Toe')
-root.config(bg="lightblue") 
-window_width = 400
-window_height = 300
-screen_width = root.winfo_screenwidth()
-screen_height = root.winfo_screenheight()
-x = int((screen_width / 2) - (window_width / 2))
-y = int((screen_height / 2) - (window_height / 2))
-root.geometry(f"{window_width}x{window_height}+{x}+{y}")
+root = tk.Tk()
+root.title("Tic Tac Toe")
+root.geometry("350x420")
+root.config(bg="lightblue")
 root.resizable(False, False)
-a = tkinter.Label(root, text='Tic-Tac-Toe', width=37, fg='#57a1f8', bg='white', font=('calibiri', 25, 'bold'))
-a.place(x=200, y=11, anchor='n')
-textbox = tkinter.Entry(root, width=2, font=("calibri", 25, "bold"), justify="center", fg='red')
-textbox.bind("<KeyRelease>", lambda e: textbox.insert(0, textbox.get().upper()))
-textbox.place(x=50, y=50)
 
+current_player = "X"
+board = [""] * 9
+buttons = []
 
-# frame = tkinter.Frame(cus, width = 700,height = 500,bg = 'white')
-# frame.place(x = 0,y = 70)
-# heading = tkinter.Label(frame,text = 'Select Your Choice',bg = 'white',font = ('calibiri',25))
-# heading.place(x = 10,y = 40)
-# cat = tkinter.Entry(frame,width = 5,fg = 'black',border = 0,bg = 'white',font = ('calibiri',15))
-# cat.place(x = 30,y = 105)
-# cat.insert(0,'1. ')
-# per = tkinter.Entry(frame,width = 25,fg = 'black',border = 0,bg = 'white',font = ('calibiri',15))
-# per.place(x = 30,y = 160)
-# per.insert(0,'2. ')
-# mm = tkinter.Entry(frame,width = 25,fg = 'black',border = 0,bg = 'white',font = ('calibiri',15))
-# mm.place(x = 30,y = 215)
-# mm.insert(0,'3. ')
-# men = tkinter.Entry(frame,width = 25,fg = 'black',border = 0,bg = 'white',font = ('calibiri',15))
-# men.place(x = 30,y = 270)
-# men.insert(0,'4. ')
-# button1 = tkinter.Button(frame,width = 7,text = 'Booking',border = 0,bg = 'white',cursor = 'hand2',activeforeground = 'blue',command = form,font = ('calibiri',15)) 
-# button1.place(x = 50,y = 100)
-# button2 = tkinter.Button(frame,width = 8,text = 'Boarding',border = 0,bg = 'white',cursor = 'hand2',activeforeground = 'blue',command = form,font = ('calibiri',15))
-# button2.place(x = 50,y = 210)
-# button3 = tkinter.Button(frame,width = 6,text = 'Check',border = 0,bg = 'white',cursor = 'hand2',activeforeground = 'blue',command = form,font = ('calibiri',15))
-# button3.place(x = 50,y = 155)
-# button4 = tkinter.Button(frame,width = 7,text = 'Enquiry',border = 0,bg = 'white',cursor = 'hand2',activeforeground = 'blue',command = form,font = ('calibiri',15))
-# button4.place(x = 50,y = 265)
-# d = '_'*90
-# c = tkinter.Label(cus,text = d,bg = 'white',font = ('calibiri',10,'bold'))
-# c.place(x = 20,y = 380)
-# b = tkinter.Label(cus,text = '* Select the operation you want to perform',bg = 'white',font = ('calibiri',10,'bold'))
-# b.place(x = 20,y = 400)
-# button5 = tkinter.Button(cus, text = 'exit',width = 7,pady = 7,bg = '#D3D3D3', font = ('calibiri', 10), command = form)
-# button5.place(x = 10,y = 450)
-# button6 = tkinter.Button(cus, text = 'Back',width = 10,pady = 7,bg = '#D3D3D3', font = ('calibiri', 10), command = form)
-# button6.place(x = 600,y = 450)
+status_label = tk.Label(root, text="Player X's Turn", font=("Arial", 18, "bold"), bg="lightblue", fg="black")
+status_label.pack(pady=10)
+
+frame = tk.Frame(root, bg="lightblue")
+frame.pack()
+
+def check_winner():
+    win_positions = [
+        [0, 1, 2],
+        [3, 4, 5],
+        [6, 7, 8],
+        [0, 3, 6],
+        [1, 4, 7],
+        [2, 5, 8],
+        [0, 4, 8],
+        [2, 4, 6]
+    ]
+
+    for pos in win_positions:
+        a, b, c = pos
+        if board[a] == board[b] == board[c] != "":
+            return board[a]
+
+    if "" not in board:
+        return "Draw"
+
+    return None
+
+def button_click(index):
+    global current_player
+
+    if board[index] != "":
+        return
+
+    board[index] = current_player
+    buttons[index].config(text=current_player)
+
+    result = check_winner()
+
+    if result == "X" or result == "O":
+        status_label.config(text=f"Player {result} wins!")
+        messagebox.showinfo("Game Over", f"Player {result} wins!")
+        disable_buttons()
+    elif result == "Draw":
+        status_label.config(text="It's a Draw!")
+        messagebox.showinfo("Game Over", "It's a Draw!")
+        disable_buttons()
+    else:
+        current_player = "O" if current_player == "X" else "X"
+        status_label.config(text=f"Player {current_player}'s Turn")
+
+def disable_buttons():
+    for button in buttons:
+        button.config(state="disabled")
+
+def reset_game():
+    global current_player, board
+    current_player = "X"
+    board = [""] * 9
+    status_label.config(text="Player X's Turn")
+
+    for button in buttons:
+        button.config(text="", state="normal")
+
+for i in range(9):
+    button = tk.Button(frame, text="", font=("Arial", 24, "bold"), width=5, height=2, bg="white", fg="black", command=lambda i=i: button_click(i))
+    button.grid(row=i // 3, column=i % 3, padx=5, pady=5)
+    buttons.append(button)
+
+restart_button = tk.Button(root, text="Restart Game", font=("Arial", 14, "bold"), bg="white", fg="black", command=reset_game)
+restart_button.pack(pady=20)
+
 root.mainloop()
